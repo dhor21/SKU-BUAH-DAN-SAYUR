@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SKU Finder - AEON Produce Indonesia | Hasil di Atas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e0f2e9 0%, #c8e6d9 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 48px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .header {
+            background: #2c5e2e;
+            padding: 20px 28px;
+            color: white;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            opacity: 0.85;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .search-card {
+            padding: 24px 24px 20px;
+            background: white;
+        }
+
+        /* HASIL PENCARIAN - DITEMPATKAN DI ATAS */
+        .result-area {
+            background: #f9fbf7;
+            border-radius: 28px;
+            padding: 18px 22px;
+            margin-bottom: 25px;
+            border: 1px solid #e2ecd9;
+        }
+
+        .result-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: #5f7c5c;
+            margin-bottom: 12px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 28px;
+            padding: 18px 24px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+            border-left: 8px solid #2c5e2e;
+        }
+
+        .found-item {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: baseline;
+        }
+
+        .fruit-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e3a2f;
+            word-break: break-word;
+        }
+
+        .fruit-code {
+            background: #eef3ea;
+            padding: 6px 16px;
+            border-radius: 60px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c5e2e;
+        }
+
+        .not-found {
+            color: #b1624b;
+            font-weight: 500;
+            background: #fff3ef;
+            border-radius: 28px;
+            padding: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #8aaE86;
+            padding: 20px;
+            background: white;
+            border-radius: 28px;
+        }
+
+        .input-area {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1f3b2c;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            display: block;
+        }
+
+        .sku-display {
+            background: #f4f9f0;
+            border: 2px solid #d1e0d4;
+            border-radius: 60px;
+            padding: 14px 20px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: monospace;
+            letter-spacing: 2px;
+            color: #1e3a2f;
+            text-align: center;
+            word-break: break-all;
+            min-height: 70px;
+            margin-bottom: 20px;
+        }
+
+        /* Numpad Grid dengan urutan 789456123 */
+        .numpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .num-btn {
+            background: #f1f5ee;
+            border: none;
+            padding: 16px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            color: #2c5e2e;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-family: monospace;
+        }
+
+        .num-btn:active {
+            transform: scale(0.96);
+            background: #e0ecd9;
+        }
+
+        .btn-backspace {
+            background: #ffe0b5;
+            color: #b45f1b;
+            font-size: 1.3rem;
+        }
+
+        .btn-zero {
+            background: #f1f5ee;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-clear {
+            flex: 1;
+            background: #e7d8c5;
+            color: #7a5a3a;
+            border: none;
+            padding: 14px;
+            font-weight: bold;
+            font-size: 1rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-search {
+            flex: 2;
+            background: #2c5e2e;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 8px rgba(44,94,46,0.3);
+        }
+
+        .btn-search:active, .btn-clear:active, .btn-backspace:active {
+            transform: scale(0.97);
+        }
+
+        .sample-info {
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #799a6e;
+            background: #f4f9f0;
+            padding: 10px 16px;
+            border-radius: 36px;
+            text-align: center;
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 14px 24px 20px;
+            color: #7a9a6e;
+            background: white;
+            border-top: 1px solid #eaf3e4;
+        }
+
+        @media (max-width: 480px) {
+            .num-btn {
+                padding: 12px 0;
+                font-size: 1.5rem;
+            }
+            .fruit-name {
+                font-size: 1.2rem;
+            }
+            .sku-display {
+                font-size: 1.3rem;
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>🍏 AEON Find My Produce</h1>
+        <p>Cari kode SKU → Hasil tampil di atas</p>
+    </div>
+
+    <div class="search-card">
+        <!-- ========== HASIL PENCARIAN DI ATAS (sebelum input) ========== -->
+        <div class="result-area">
+            <div class="result-title">📦 HASIL PENCARIAN</div>
+            <div id="resultContainer">
+                <div class="welcome-message">✨ Masukkan kode SKU lalu tekan Cari ✨</div>
+            </div>
+        </div>
+
+        <!-- ========== AREA INPUT KODE ========== -->
+        <div class="input-area">
+            <span class="input-label">📲 KODE SKU (klik tombol di bawah)</span>
+            <div class="sku-display" id="skuDisplay">—</div>
+        </div>
+
+        <!-- ========== NUMPAD dengan urutan 789456123 ========== -->
+        <div class="numpad-grid" id="numpad"></div>
+
+        <!-- ========== TOMBOL AKSI ========== -->
+        <div class="action-buttons">
+            <button class="btn-clear" id="clearBtn">🗑️ Hapus Semua</button>
+            <button class="btn-search" id="searchBtn">🔍 CARI KODE</button>
+        </div>
+
+        <div class="sample-info">
+            💡 Contoh: <strong>84557</strong> (Apel Wangsan Big) &nbsp;| <strong>80256</strong> (Alpukat Mentega) &nbsp;| <strong>80016</strong> (Buah Naga Merah)
+        </div>
+    </div>
+    <footer>
+        🧾 Berdasarkan data SKU Produce Aeon Indonesia | Total 126 produk | Urutan: 7 8 9 4 5 6 1 2 3 0 ⌫
+    </footer>
+</div>
+
+<script>
+    // ============================================================
+    // DATABASE PRODUK (LENGKAP)
+    // ============================================================
+    const productDatabase = [
+        { kode: 84557, nama: "Apel Wangsan Big" },{ kode: 83321, nama: "Apel Envy Big" },{ kode: 83827, nama: "Apel Fuji Brush" },
+        { kode: 83344, nama: "Apel Grany Smith (Hijau)" },{ kode: 83864, nama: "Apel Pinkylady nz" },{ kode: 83835, nama: "Apel Dazzle Big" },
+        { kode: 84683, nama: "Apel Dazzle Biasa" },{ kode: 86123, nama: "Apel Fuji Pohon" },{ kode: 84437, nama: "Apel Malang" },
+        { kode: 86506, nama: "Apel sugar bee" },{ kode: 83852, nama: "Apel Hny crsp jmb" },{ kode: 82862, nama: "Apel Gala Aus" },
+        { kode: 83355, nama: "Apel Reddel BSR" },{ kode: 84525, nama: "Apel Xiangli" },{ kode: 83861, nama: "Apel Straberry Pack" },
+        { kode: 82191, nama: "Anggur Red globe" },{ kode: 80256, nama: "Alpukat Mentega" },{ kode: 86565, nama: "Alpukat Pluwang" },
+        { kode: 85197, nama: "Alpukat Prob" },{ kode: 86624, nama: "Alpukat Miki kg" },{ kode: 84419, nama: "Alpukat Sulawesi" },
+        { kode: 88013, nama: "Alpukat Vietnam" },{ kode: 84433, nama: "Avomango" },{ kode: 86339, nama: "Apricot pack" },
+        { kode: 85501, nama: "B. Putih" },{ kode: 80764, nama: "B. Merah" },{ kode: 84608, nama: "Bombay" },
+        { kode: 80013, nama: "Bengkoang" },{ kode: 80523, nama: "Brokoli" },{ kode: 80525, nama: "Buncis Gelar kg" },
+        { kode: 83182, nama: "Blood Orange" },{ kode: 80016, nama: "Buah Naga Merah" },{ kode: 80017, nama: "Buah Naga Putih" },
+        { kode: 80019, nama: "Cempedak" },{ kode: 81482, nama: "Cavendis Single" },{ kode: 81485, nama: "Honey Emr Sunpr" },
+        { kode: 83382, nama: "Jeruk Afourer" },{ kode: 82400, nama: "Jeruk Navel Aus" },{ kode: 87999, nama: "Jeruk Navel dolci" },
+        { kode: 82157, nama: "Jeruk Murcot Aus" },{ kode: 82147, nama: "Jeruk Clemen gold" },{ kode: 80046, nama: "Jeruk Medan Jumbo" },
+        { kode: 80036, nama: "Jeruk Baby" },{ kode: 81484, nama: "Jeruk Baby Sunp" },{ kode: 87552, nama: "Jeruk Summerina" },
+        { kode: 82405, nama: "Jeruk Santang Daun" },{ kode: 88040, nama: "Jeruk Santang emperor" },{ kode: 85832, nama: "Jeruk Tangold" },
+        { kode: 87092, nama: "Jeruk Red beauty" },{ kode: 80055, nama: "Jeruk Siam Madu" },{ kode: 84774, nama: "Jeruk Mand Lokal" },
+        { kode: 87429, nama: "Jambu Kristal Med" },{ kode: 82378, nama: "Jambu Kristal Big" },{ kode: 85299, nama: "Kentang" },
+        { kode: 82373, nama: "Kiwi Sungold" },{ kode: 82170, nama: "Kiwi Zepri Green" },{ kode: 80058, nama: "Kedondong" },
+        { kode: 82050, nama: "Lengkeng" },{ kode: 84612, nama: "Lemon Imp" },{ kode: 80278, nama: "Lemon Clfnia Lkl" },
+        { kode: 80644, nama: "Labu Kaboca Hijau" },{ kode: 80645, nama: "Labu Kaboca Kuning" },{ kode: 86064, nama: "Labu Butter Nut Orange" },
+        { kode: 84224, nama: "Labu Butter Nut" },{ kode: 85502, nama: "Mangga A.Manis AB" },{ kode: 84432, nama: "Mangga A. Manis SP" },
+        { kode: 87563, nama: "Mangga AYCT" },{ kode: 88035, nama: "Mix mangga" },{ kode: 80063, nama: "Mangga Budiraja" },
+        { kode: 80071, nama: "Mangga Indramayu" },{ kode: 80075, nama: "Mangga Manalagi" },{ kode: 85841, nama: "Mangga Kiojay S" },
+        { kode: 80446, nama: "Mangga Kweni" },{ kode: 80445, nama: "Mangga Irwin" },{ kode: 80066, nama: "Mangga G. Gincu" },
+        { kode: 80283, nama: "Mangga Podang" },{ kode: 87537, nama: "Mangga Pride SPR" },{ kode: 80445, nama: "Mangga Irwin" },
+        { kode: 80086, nama: "Melon Rock" },{ kode: 80081, nama: "Melon Golden" },{ kode: 80089, nama: "Melon Ithanone" },
+        { kode: 86539, nama: "Melon Pico" },{ kode: 86242, nama: "Melon Fujisawa" },{ kode: 81485, nama: "Melon Honey emr" },
+        { kode: 80087, nama: "Melon Sky Rock" },{ kode: 82194, nama: "Melon Hamigua" },{ kode: 82277, nama: "Melon Baby blonde" },
+        { kode: 80078, nama: "Markisa" },{ kode: 80076, nama: "Manggis" },{ kode: 84667, nama: "Pisang Cavendis" },
+        { kode: 80467, nama: "Pepaya California" },{ kode: 85172, nama: "Pepaya Calina" },{ kode: 86454, nama: "Pepaya Baby Calina" },
+        { kode: 80109, nama: "Pepaya Hawaii" },{ kode: 83488, nama: "Pomegranate RRC" },{ kode: 83771, nama: "Pear Sweet" },
+        { kode: 87621, nama: "Pear Golden Pohon" },{ kode: 87620, nama: "Pear Singo Pohon" },{ kode: 82423, nama: "Pear Packham" },
+        { kode: 84529, nama: "Pear Xianglie" },{ kode: 82425, nama: "Pear Singo Korea" },{ kode: 84687, nama: "Pear Singo Wang" },
+        { kode: 84558, nama: "Pear Golden Wang" },{ kode: 87035, nama: "Pear Honey Peak" },{ kode: 82073, nama: "Plum Red RRC" },
+        { kode: 80312, nama: "Sirsak" },{ kode: 80132, nama: "Salak Pondoh" },{ kode: 80480, nama: "Salak Gading" },
+        { kode: 80484, nama: "Semangka Merah" },{ kode: 80135, nama: "Semangka Kuning" },{ kode: 88037, nama: "Semangka Golden Royal" },
+        { kode: 84899, nama: "Semangka Mrh Belah" },{ kode: 86101, nama: "Semangka Mrh Slice" },{ kode: 80481, nama: "Sawo" },
+        { kode: 80723, nama: "Timun" },{ kode: 82611, nama: "Tomat Rec Beef" },{ kode: 80725, nama: "Tomat tw curah" },
+        { kode: 86957, nama: "Tofu Cina" },{ kode: 80718, nama: "Terong Ungu" },{ kode: 85296, nama: "Ubi Cilembu rte" },
+        { kode: 81120, nama: "Ubi Cilembu Kg" },{ kode: 85395, nama: "Ubi Ungu" },{ kode: 80738, nama: "Ubi Merah Kg" },
+        { kode: 80736, nama: "Ubi Jepang Kg" },{ kode: 87400, nama: "Ubi Orange Kg" },{ kode: 85276, nama: "Wortel" }
+    ];
+
+    // Map untuk pencarian cepat
+    const skuMap = new Map();
+    for (const item of productDatabase) {
+        if (!skuMap.has(item.kode)) skuMap.set(item.kode, item.nama);
+    }
+
+    // ========== STATE ==========
+    let currentInput = "";
+    const skuDisplay = document.getElementById('skuDisplay');
+    const resultContainer = document.getElementById('resultContainer');
+    const clearBtn = document.getElementById('clearBtn');
+    const searchBtn = document.getElementById('searchBtn');
+
+    function updateDisplay() {
+        if (currentInput === "") {
+            skuDisplay.innerText = "—";
+            skuDisplay.style.color = "#8aaE86";
+        } else {
+            skuDisplay.innerText = currentInput;
+            skuDisplay.style.color = "#1e3a2f";
+        }
+    }
+
+    function appendDigit(digit) {
+        if (currentInput.length >= 8) return;
+        currentInput += digit.toString();
+        updateDisplay();
+    }
+
+    function deleteLastDigit() {
+        currentInput = currentInput.slice(0, -1);
+        updateDisplay();
+        if (currentInput === "") {
+            resultContainer.innerHTML = `<div class="welcome-message">✨ Kode dihapus, masukkan angka baru ✨</div>`;
+        }
+    }
+
+    function clearInput() {
+        currentInput = "";
+        updateDisplay();
+        resultContainer.innerHTML = `<div class="welcome-message">✨ Kode dihapus, masukkan angka baru ✨</div>`;
+    }
+
+    function performSearch() {
+        if (currentInput === "") {
+            resultContainer.innerHTML = `
+                <div class="not-found">
+                    ⚠️ Belum ada kode yang dimasukkan.<br>Klik tombol angka untuk mengisi SKU.
+                </div>`;
+            return;
+        }
+
+        const codeNumber = Number(currentInput);
+        if (isNaN(codeNumber)) {
+            resultContainer.innerHTML = `<div class="not-found">❌ Kode tidak valid.</div>`;
+            return;
+        }
+
+        const foundName = skuMap.get(codeNumber);
+        if (foundName) {
+            resultContainer.innerHTML = `
+                <div class="result-card">
+                    <div class="found-item">
+                        <span class="fruit-name">🍇 ${escapeHtml(foundName)}</span>
+                        <span class="fruit-code">#${codeNumber}</span>
+                    </div>
+                    <div style="margin-top: 12px; font-size:0.7rem; color:#56823b; border-top: 1px dashed #e0ecda; padding-top: 8px;">
+                        ✅ SKU terdaftar di AEON Indonesia
+                    </div>
+                </div>`;
+        } else {
+            resultContainer.innerHTML = `
+                <div class="not-found">
+                    ❌ Kode <strong>${codeNumber}</strong> tidak ditemukan.<br>
+                    Coba cek contoh: 84557, 80256, 80016
+                </div>`;
+        }
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // ========== MEMBUAT NUMPAD DENGAN URUTAN 7 8 9 | 4 5 6 | 1 2 3 | 0 ⌫ ==========
+    const numpadGrid = document.getElementById('numpad');
+    
+    // Urutan angka: 7,8,9,4,5,6,1,2,3,0
+    const urutanAngka = [7, 8, 9, 4, 5, 6, 1, 2, 3, 0];
+    
+    for (let i = 0; i < urutanAngka.length; i++) {
+        const digit = urutanAngka[i];
+        const btn = document.createElement('button');
+        btn.innerText = digit;
+        btn.classList.add('num-btn');
+        if (digit === 0) {
+            btn.classList.add('btn-zero');
+        }
+        btn.addEventListener('click', (function(d) {
+            return function() { appendDigit(d); };
+        })(digit));
+        numpadGrid.appendChild(btn);
+    }
+    
+    // Tombol Backspace (⌫) di posisi terakhir
+    const backspaceBtn = document.createElement('button');
+    backspaceBtn.innerText = '⌫';
+    backspaceBtn.classList.add('num-btn', 'btn-backspace');
+    backspaceBtn.addEventListener('click', deleteLastDigit);
+    numpadGrid.appendChild(backspaceBtn);
+
+    // Event listeners
+    clearBtn.addEventListener('click', clearInput);
+    searchBtn.addEventListener('click', performSearch);
+
+    // Dukungan keyboard fisik
+    window.addEventListener('keydown', (e) => {
+        const key = e.key;
+        if (key >= '0' && key <= '9') {
+            e.preventDefault();
+            appendDigit(parseInt(key));
+        } else if (key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+        } else if (key === 'Backspace') {
+            e.preventDefault();
+            deleteLastDigit();
+        } else if (key === 'Delete' || key === 'Escape') {
+            e.preventDefault();
+            clearInput();
+        }
+    });
+
+    // Inisialisasi
+    updateDisplay();
+    console.log(`Aplikasi siap | Hasil pencarian di ATAS | Total SKU: ${skuMap.size}`);
+</script>
+</body>
+</html>
